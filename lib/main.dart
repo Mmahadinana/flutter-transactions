@@ -118,24 +118,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text('Rosy App'),
-            backgroundColor: Theme.of(context).primaryColor,
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () => _startAtNewTransaction(context),
-              )
-            ],
-          ),
+    final appBar =  AppBar(
+      title: Text('Rosy App'),
+      backgroundColor: Theme.of(context).primaryColor,
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () => _startAtNewTransaction(context),
+        )
+      ],
+    );
+    return Scaffold(
+          appBar: appBar,
           body: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Chart(_recentTractions),
-                TransactionList(_userTransactions, _deleteTransaction),
+                Container(
+                  height: (MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top) * 0.3,
+                  child: Chart(_recentTractions),
+                ),
+                Container(
+                  height: (MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top) * 0.7,
+                  child: TransactionList(_userTransactions, _deleteTransaction),
+                ),
               ],
             ),
           ),
@@ -144,7 +150,6 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Icon(Icons.add),
             onPressed: () =>_startAtNewTransaction(context),
           ),
-        )
     );
   }
 }
