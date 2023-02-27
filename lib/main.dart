@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import './widgets/transaction_list.dart';
@@ -6,7 +7,14 @@ import './widgets/new_transaction.dart';
 import './models/transaction.dart';
 import './widgets/chart.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitDown,
+  //   DeviceOrientation.portraitUp,
+  // ]);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
 
@@ -21,7 +29,7 @@ class MyApp extends StatelessWidget {
           textTheme: ThemeData.light().textTheme.copyWith(
             titleLarge: TextStyle(
                 fontFamily: 'Quicksand',
-                fontSize: 30,
+                fontSize: 20,
                 fontWeight: FontWeight.bold
             ),
           ),
@@ -78,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ),
   ];
 
+  bool _showChart = false;
   List<Transaction> get _recentTractions {
     return _userTransactions.where((txt){
         return txt.date.isAfter(
@@ -118,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandScape = MediaQuery.of(context).orientation == Orientation;
     final appBar =  AppBar(
       title: Text('Rosy App'),
       backgroundColor: Theme.of(context).primaryColor,
@@ -128,20 +138,42 @@ class _MyHomePageState extends State<MyHomePage> {
         )
       ],
     );
+
+    final txListWidget = Container(
+      height: (MediaQuery.of(context).size.height -
+          appBar.preferredSize.height -
+          MediaQuery.of(context).padding.top) * 0.7,
+      child: TransactionList(_userTransactions, _deleteTransaction),
+    );
     return Scaffold(
           appBar: appBar,
           body: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Container(
-                  height: (MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top) * 0.3,
+                if(isLandScape) Row(
+                    mainAxisAlignment:MainAxisAlignment.center ,
+                    children: <Widget> [
+                      Text('Show Chard'),
+                      Switch(value: true, onChanged: (value) {
+                        setState(() {
+                          _showChart = value;
+                        });
+                      }),
+                ]),
+               if (!isLandScape)  Container(
+                 height: (MediaQuery.of(context).size.height -
+                     appBar.preferredSize.height -
+                     MediaQuery.of(context).padding.top) * 0.3,
+                 child: Chart(_recentTractions),
+               ),
+                if (!isLandScape) txListWidget,
+                if (isLandScape) _showChart ?  Container(
+                  height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height -
+                      MediaQuery.of(context).padding.top) * 0.3,
                   child: Chart(_recentTractions),
-                ),
-                Container(
-                  height: (MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top) * 0.7,
-                  child: TransactionList(_userTransactions, _deleteTransaction),
-                ),
+                ) : txListWidget,
               ],
             ),
           ),
